@@ -1,33 +1,19 @@
+`define REG_WIDTH 64
+`define INSTR_MEM_LENTH 2048
 module instr_mem (
-    input clk;
-    input rst;
-    input wr_en;
-    input wr_addr;
-    input wr_instr;
-    input rd_addr;
-    input rd_en;
-    output rd_instr;
+    input clk,
+    input rst,
+    input [10:0] rd_addr,
+    input rd_en,
+    output [63:0] rd_instr
 );
-    reg [`REG_WIDTH] mem[`INSTR_MEM_LENTH];
-    always @(posedge clk or negedge rst) begin
-    	if (rst) begin
-    	    
-    	end
-	else begin
-	    if (rd_en) begin
-	    	rd_instr <= mem[rd_addr]
-	    end
-	    else begin
-	    	
-	    end
 
-	    if (wr_en) begin
-	    	mem[wr_addr] <= wr_instr;
-	    end
-	    else begin
-	    	
-	    end
-	end
+    reg [`REG_WIDTH-1:0] mem[`INSTR_MEM_LENTH-1:0];
+    always @(posedge clk) begin
+        if(rd_en)begin
+	    rd_instr <= mem[rd_addr];
+        end
     end
+
 	
 endmodule

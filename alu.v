@@ -1,8 +1,8 @@
 module alu (
-    input  [16:0]alu_ctrl ;
-    input  [63:0] alu_sr1 ;
-    input  [63:0] alu_sr2 ;
-    output [63:0] alu_res;
+    input  [16:0]alu_ctrl,
+    input  [63:0] alu_sr1,
+    input  [63:0] alu_sr2,
+    output [63:0] alu_res
 
 );
 
@@ -27,25 +27,22 @@ module alu (
     wire [63:0] add_src1;
     wire [63:0] add_src2;
     wire        add_cin;
+    wire [63:0] add_sub_res;
     wire [63:0] add_res;
     wire        add_cout;
 
-    wire and_res;
-    wire or_res ;
-    wire xor_res;
-    wire lui_res;
-    wire slt_blt_bge_res;
-    wire sltu_bltu_bgeu_res;
-    wire sll_res;
-    wire srl_res;
-    wire sra_res;
+    wire [63:0] and_res;
+    wire [63:0] or_res ;
+    wire [63:0] xor_res;
+    wire [63:0] lui_res;
+    wire [63:0] slt_blt_bge_res;
+    wire [63:0] sltu_bltu_bgeu_res;
+    wire [63:0] sll_res;
+    wire [63:0] srl_res;
+    wire [63:0] sra_res;
+    wire [63:0] beq_res;
+    wire [63:0] bne_res;
 
-    assign op_beq  = alu_ctrl[11];
-    assign op_bne  = alu_ctrl[12];
-    assign op_blt  = alu_ctrl[13];
-    assign op_bge  = alu_ctrl[14];
-    assign op_bltu = alu_ctrl[15];
-    assign op_bgeu = alu_ctrl[16];
     assign op_add  = alu_ctrl[0];
     assign op_sub  = alu_ctrl[1];
     assign op_slt  = alu_ctrl[2];
@@ -67,7 +64,7 @@ module alu (
     assign and_res = alu_sr1 & alu_sr2;
     assign or_res  = alu_sr1 | alu_sr2;
     assign xor_res = alu_sr1 ^ alu_sr2;
-    assign lui_res = {32{alu_sr2[31]}, alu_sr2[31:12], 12'b0};
+    assign lui_res = {{32{alu_sr2[31]}}, alu_sr2[31:12], 12'b0};
     
     assign sll_res = alu_sr1 << alu_sr2;
     assign srl_res = alu_sr1 >> alu_sr2;
@@ -88,19 +85,19 @@ module alu (
     assign sltu_bltu_bgeu_res[63:1] = 63'b0;
     
     assign beq_res[0] = ({add_cout, add_res}==0);
-    assign bnq_res[0] = ({add_cout, add_res}!=0);
+    assign bne_res[0] = ({add_cout, add_res}!=0);
 
-    assign alu_res = ({63{op_add | op_sub}} & add_sub_res)
-                   | ({63{op_slt | op_blt | op_bge}}  & slt_blt_bge_res )
-                   | ({63{op_sltu | op_bltu | op_bgeu}}  & sltu_bltu_bgeu_res)
-                   | ({63{op_and }}  & and_res )
-                   | ({63{op_xor }}  & xor_res )
-                   | ({63{op_or  }}  & or_res  )
-                   | ({63{op_sll }}  & sll_res )
-                   | ({63{op_srl }}  & srl_res )
-                   | ({63{op_sra }}  & sra_res )
-                   | ({63{op_lui }}  & lui_res );
-                   | ({63{op_beq }}  & beq_res );
-                   | ({63{op_bnq }}  & bnq_res );
+    assign alu_res = ({64{op_add | op_sub}} & add_sub_res)
+                   | ({64{op_slt | op_blt | op_bge}}  & slt_blt_bge_res )
+                   | ({64{op_sltu | op_bltu | op_bgeu}}  & sltu_bltu_bgeu_res)
+                   | ({64{op_and }}  & and_res )
+                   | ({64{op_xor }}  & xor_res )
+                   | ({64{op_or  }}  & or_res  )
+                   | ({64{op_sll }}  & sll_res )
+                   | ({64{op_srl }}  & srl_res )
+                   | ({64{op_sra }}  & sra_res )
+                   | ({64{op_lui }}  & lui_res )
+                   | ({64{op_beq }}  & beq_res )
+                   | ({64{op_bne }}  & bne_res );
 
 endmodule
