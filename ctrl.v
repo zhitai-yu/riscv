@@ -43,7 +43,7 @@ module ctrl (
     assign pc_sel[2] = pc_src_en[2] & ~(pc_src_en[0] & pc_src_en[1]);
     
     //alu_ctrl
-    assign alu_src1 = ({64{~(pc_src_en[1] | pc_src_en[2] | pc_src_en[3])}} & rs1_reg2ctrl)
+    assign alu_src1 = ({64{rs1_en}} & rs1_reg2ctrl)
 		   | ({64{pc_src_en[2] | pc_src_en[2] | pc_src_en[3]}} & pc);
 
     assign alu_src2 = ({64{rs2_en}} & rs2_reg2ctrl)

@@ -1,0 +1,8 @@
+./alu.v
+./ctrl.v
+./data_mem.v
+./idu.v
+./instr_mem.v
+./pc_gen.v
+./regfile.v
+./cpu.v

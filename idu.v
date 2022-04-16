@@ -1,4 +1,4 @@
-`define INSTR_SIZE 64
+`define INSTR_SIZE 32
 module idu(
     //instr_mem to idu
     input  [`INSTR_SIZE-1:0] instr,
@@ -133,9 +133,9 @@ module idu(
     assign rv_xori  = op_cali && func3_100;
     assign rv_ori   = op_cali && func3_110;
     assign rv_andi  = op_cali && func3_111;
-    assign rv_slli  = op_cali && func3_001 && (func7==7'b00000000);
-    assign rv_srli  = op_cali && func3_101 && (func7==7'b00000000);
-    assign rv_srai  = op_cali && func3_101 && (func7==7'b01000000);
+    assign rv_slli  = op_cali && func3_001 && (func7==7'b0000000);
+    assign rv_srli  = op_cali && func3_101 && (func7==7'b0000000);
+    assign rv_srai  = op_cali && func3_101 && (func7==7'b0100000);
     
     assign rv_jal  = (opcode == 7'b1101111) && func3_000;
     
@@ -151,16 +151,16 @@ module idu(
 
     //r_type instruction
     assign op_r  = (opcode == 7'b0110011);
-    assign rv_add = op_r && func3_000 && (func7==7'b00000000);
-    assign rv_sub = op_r && func3_000 && (func7==7'b01000000);
-    assign rv_sll = op_r && func3_001 && (func7==7'b00000000);
-    assign rv_slt = op_r && func3_010 && (func7==7'b00000000);
-    assign rv_sltu= op_r && func3_011 && (func7==7'b00000000);
-    assign rv_xor = op_r && func3_100 && (func7==7'b00000000);
-    assign rv_srl = op_r && func3_101 && (func7==7'b00000000);
-    assign rv_sra = op_r && func3_101 && (func7==7'b01000000);
-    assign rv_or  = op_r && func3_110 && (func7==7'b00000000);
-    assign rv_and = op_r && func3_111 && (func7==7'b00000000);
+    assign rv_add = op_r && func3_000 && (func7==7'b0000000);
+    assign rv_sub = op_r && func3_000 && (func7==7'b0100000);
+    assign rv_sll = op_r && func3_001 && (func7==7'b0000000);
+    assign rv_slt = op_r && func3_010 && (func7==7'b0000000);
+    assign rv_sltu= op_r && func3_011 && (func7==7'b0000000);
+    assign rv_xor = op_r && func3_100 && (func7==7'b0000000);
+    assign rv_srl = op_r && func3_101 && (func7==7'b0000000);
+    assign rv_sra = op_r && func3_101 && (func7==7'b0100000);
+    assign rv_or  = op_r && func3_110 && (func7==7'b0000000);
+    assign rv_and = op_r && func3_111 && (func7==7'b0000000);
     
     
     //j_type instruction
@@ -209,9 +209,9 @@ module idu(
     assign alu_ctrl[1]  = rv_sub;
     assign alu_ctrl[2]  = rv_slti | rv_slt;
     assign alu_ctrl[3]  = rv_sltiu | rv_sltu;
-    assign alu_ctrl[4]  = rv_and;
-    assign alu_ctrl[5]  = rv_xor;
-    assign alu_ctrl[6]  = rv_or;
+    assign alu_ctrl[4]  = rv_and | rv_andi;
+    assign alu_ctrl[5]  = rv_xor | rv_xori;
+    assign alu_ctrl[6]  = rv_or | rv_ori;
     assign alu_ctrl[7]  = rv_slli | rv_sll;
     assign alu_ctrl[8]  = rv_srli | rv_srl;
     assign alu_ctrl[9]  = rv_sra | rv_srai;

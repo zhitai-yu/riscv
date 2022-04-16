@@ -3,7 +3,6 @@ module cpu (
     input rst
 );
 
-    wire [63:0] pc_src_en;
     wire  rs1_en;
     wire  rs2_en;
     wire  alu2reg_en;
@@ -15,23 +14,30 @@ module cpu (
     wire [63:0] rs2_data;
     wire [4:0] rs1_addr;
     wire [4:0] rs2_addr;
-    wire [63:0] rd;
+    wire [4:0] rd;
     wire [63:0] pc;
     wire [2:0] pc_sel;
     wire [3:0] pc_src_en;
     wire wr_reg_en;
-    wire [16:0] alu_ctrl;
     wire [3:0] wr_rd_mem_len;
     wire [16:0] alu_ctrl;
     wire [63:0] mem_rd_data;
     wire rd_mem_en;
     wire wr_mem_en;
-    wire [63:0] instr;
+    wire [31:0] instr;
     wire [63:0] alu_src1; 
     wire [63:0] alu_src2;
     wire [63:0] alu_res;
     wire [63:0] wr_reg_data;
     wire [63:0] rd_mem_addr;
+    wire [10:0] rd_addr2mem;
+    wire [10:0] wr_addr2mem;
+    wire [10:0] wr_addr2instrmem;
+
+    assign rd_addr2mem = rd_mem_addr[10:0];
+    assign wr_addr2mem = alu_res[10:0];
+    assign wr_addr2instrmem = pc[10:0];
+
     ctrl rv64_ctrl (
 	//from idu
         .pc_src_en (pc_src_en),
@@ -109,7 +115,7 @@ module cpu (
     instr_mem rv64_instr_mem (
         .clk (clk),
         .rst (rst),
-        .rd_addr (pc),
+        .rd_addr (wr_addr2instrmem),
         .rd_en (1),
         .rd_instr (instr)
     );
@@ -118,13 +124,12 @@ module cpu (
         .clk (clk),
         .rst (rst),
         .wr_en (wr_mem_en),
-        .wr_addr (alu_res[10:0]),
+        .wr_addr (wr_addr2mem),
         .wr_data (rs2_data),
         .wr_len (wr_rd_mem_len),
-        .rd_addr (rd_mem_addr[10:0]),
+        .rd_addr (rd_addr2mem),
         .rd_en (rd_mem_en),
-        .rd_data (mem_rd_data),
-        .rd_len (wr_rd_mem_len)
+        .rd_data (mem_rd_data)
     );
 
     regfile rv64_regfile (

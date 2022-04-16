@@ -1,5 +1,5 @@
 `define REGFILE_NUM 32
-`define REG_WIDTH 64
+`define REGFILE_WIDTH 64
 
 module regfile (
     input clk,
@@ -11,11 +11,11 @@ module regfile (
     input wr_en,
     input [63:0] wr_data,
     input [4:0] wr_addr,
-    output [63:0] rs1_data,
-    output [63:0] rs2_data
+    output reg [63:0] rs1_data,
+    output reg [63:0] rs2_data
 );
 
-    reg [`REG_WIDTH-1:0] regfile[0:`REGFILE_NUM-1];
+    reg [`REGFILE_WIDTH-1:0] regfile[0:`REGFILE_NUM-1];
 
     always @(posedge clk or negedge clk) begin
     	if (rst) begin
@@ -46,7 +46,7 @@ module regfile (
     end
 
     always @(*) begin
-    	regfile[0] <= 0;
+    	regfile[0] = 0;
     end
 
 endmodule

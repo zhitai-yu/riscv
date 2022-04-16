@@ -1,10 +1,10 @@
 module pc_gen (
     input clk,
     input rst,
-    input pc_sel[2:0],
-    input rs1[63:0],
-    input imm[63:0],
-    output pc[63:0]
+    input[2:0] pc_sel,
+    input[63:0] rs1,
+    input[63:0] imm,
+    output[63:0] pc
 );
 
     wire [63:0] pc_src1;
@@ -27,7 +27,7 @@ module pc_gen (
 	           | ({64{pc_sel[2]}} & rs1);
 
     assign pc_src2 = ({64{pc_sel[0]}} & 64'h4)
-	           | ({64{pc_sel[1]}} & {imm[62:0],0})
+	           | ({64{pc_sel[1]}} & {imm[62:0],1'b0})
 	           | ({64{pc_sel[2]}} & imm);
     
 endmodule

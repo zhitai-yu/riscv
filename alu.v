@@ -1,5 +1,5 @@
 module alu (
-    input  [16:0]alu_ctrl,
+    input  [16:0] alu_ctrl,
     input  [63:0] alu_sr1,
     input  [63:0] alu_sr2,
     output [63:0] alu_res
@@ -73,8 +73,8 @@ module alu (
     assign add_src1 = (op_bgeu | op_bge) ? ~alu_sr1: alu_sr1; 
     assign add_src2 = (op_sub | op_slt | op_sltu | op_beq | op_bne | op_blt | op_bltu) ? ~alu_sr2 : alu_sr2;
     assign add_src2 = (op_sub | op_slt | op_sltu) ? ~alu_sr2 : alu_sr2;
-    assign {add_cout, add_res} = add_src1 + add_src2 + add_cin;
-    
+    assign {add_cout, add_res} = add_src1 + add_src2 + {63'b0, add_cin};
+    assign add_cin = (add_src2 == ~alu_sr2) ? 1:0;
     assign add_sub_res = add_res;
 
     assign slt_blt_bge_res[0] = (alu_sr1[63] & alu_sr2[63])
@@ -84,8 +84,8 @@ module alu (
     assign sltu_bltu_bgeu_res[0] = ~add_cout;
     assign sltu_bltu_bgeu_res[63:1] = 63'b0;
     
-    assign beq_res[0] = ({add_cout, add_res}==0);
-    assign bne_res[0] = ({add_cout, add_res}!=0);
+    assign beq_res = {63'b0,({add_cout, add_res}==0)};
+    assign bne_res = {63'b0,({add_cout, add_res}!=0)};
 
     assign alu_res = ({64{op_add | op_sub}} & add_sub_res)
                    | ({64{op_slt | op_blt | op_bge}}  & slt_blt_bge_res )
