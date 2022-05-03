@@ -16,6 +16,7 @@ module cpu (
     wire [4:0] rs2_addr;
     wire [4:0] rd;
     wire [63:0] pc;
+    wire [63:0] pc_reg;
     wire [2:0] pc_sel;
     wire [3:0] pc_src_en;
     wire wr_reg_en;
@@ -33,26 +34,36 @@ module cpu (
     wire [10:0] rd_addr2mem;
     wire [10:0] wr_addr2mem;
     wire [10:0] wr_addr2instrmem;
+    wire ebreak;
+
+    wire alu_sr1_rs1_en;
+    wire alu_sr1_pc_en;
+    wire alu_sr2_rs2_en;
+    wire alu_sr2_imm_en;
+    wire alu_sr2_pc_en;
 
     assign rd_addr2mem = rd_mem_addr[10:0];
     assign wr_addr2mem = alu_res[10:0];
     assign wr_addr2instrmem = pc[10:0];
 
     ctrl rv64_ctrl (
+        .rst(rst),
 	//from idu
         .pc_src_en (pc_src_en),
-        .rs1_en (rs1_en),
-        .rs2_en (rs2_en),
+        .alu_sr1_rs1_en(alu_sr1_rs1_en),
+        .alu_sr1_pc_en(alu_sr1_pc_en),
+        .alu_sr2_rs2_en(alu_sr2_rs2_en),
+        .alu_sr2_imm_en(alu_sr2_imm_en),
+        .alu_sr2_pc_en(alu_sr2_pc_en),
         .alu2reg_en (alu2reg_en),
         .mem2reg_en (mem2reg_en),
         .imm (imm),
-        .imm_en (imm_en),
         .rd_mem_op (rd_mem_op),	
 	//from regfile
         .rs1_reg2ctrl (rs1_data),
         .rs2_reg2ctrl (rs2_data),
 	//from pc
-        .pc (pc),
+        .pc (pc_reg),
 	//from alu
         .alu_res (alu_res),
 	//from mem
@@ -83,11 +94,13 @@ module cpu (
         .pc_sel (pc_sel),
         .rs1 (rs1_data),
         .imm (imm),
-        .pc (pc)
+        .pc (pc),
+        .pc_reg (pc_reg),
+        .ebreak(ebreak)
     );
 
     idu rv64_idu (
-    	
+        .rst (rst),
 	//from instr_mem
         .instr (instr),
 	//to ctrl
@@ -99,6 +112,11 @@ module cpu (
         .imm (imm),
         .imm_en (imm_en),    
         .rd_mem_op (rd_mem_op),	
+        .alu_sr1_rs1_en(alu_sr1_rs1_en),
+        .alu_sr1_pc_en(alu_sr1_pc_en),
+        .alu_sr2_rs2_en(alu_sr2_rs2_en),
+        .alu_sr2_imm_en(alu_sr2_imm_en),
+        .alu_sr2_pc_en(alu_sr2_pc_en),
 	//to regfile
         .rs1 (rs1_addr),    
         .rs2 (rs2_addr),    
@@ -109,7 +127,10 @@ module cpu (
 	//to data_mem
         .wr_rd_mem_len (wr_rd_mem_len),
         .rd_mem_en (rd_mem_en),
-        .wr_mem_en (wr_mem_en)
+        .wr_mem_en (wr_mem_en),
+
+        //to pc
+        .ebreak(ebreak)
     );
 
     instr_mem rv64_instr_mem (

@@ -1,5 +1,6 @@
 `define INSTR_SIZE 32
 module idu(
+    input  rst,
     //instr_mem to idu
     input  [`INSTR_SIZE-1:0] instr,
     //idu to ctrl
@@ -11,6 +12,11 @@ module idu(
     output [63:0] imm,
     output imm_en,    
     output [6:0] rd_mem_op,    
+    output alu_sr1_rs1_en,
+    output alu_sr1_pc_en,
+    output alu_sr2_rs2_en,
+    output alu_sr2_imm_en,
+    output alu_sr2_pc_en,
     //idu to regfile
     output [4:0] rs1,    
     output [4:0] rs2,    
@@ -21,7 +27,9 @@ module idu(
     //idu to data_mem
     output [3:0] wr_rd_mem_len,
     output rd_mem_en,
-    output wr_mem_en
+    output wr_mem_en,
+    //idu to pc
+    output ebreak
 );
 
     //pc_src_en or not
@@ -96,6 +104,8 @@ module idu(
     wire rv_lhu  ;
     wire rv_lbu  ;
     
+    assign ebreak = (rst==1)?0:(instr[31:0] == 32'h0100073);
+
     assign opcode = instr[6:0];
     assign rd     = instr[11:7];
     assign func3  = instr[14:12];
@@ -124,7 +134,7 @@ module idu(
     assign rv_auipc = (opcode == 7'b0010111);
     
     //i_type instruction
-    assign op_i = (op_cali || op_memi || opcode==7'b1101111);
+    assign op_i = (op_cali || op_memi || opcode==7'b1100111);
     
     assign op_cali  = (opcode == 7'b0010011);
     assign rv_addi  = op_cali && func3_000;
@@ -137,7 +147,8 @@ module idu(
     assign rv_srli  = op_cali && func3_101 && (func7==7'b0000000);
     assign rv_srai  = op_cali && func3_101 && (func7==7'b0100000);
     
-    assign rv_jal  = (opcode == 7'b1101111) && func3_000;
+    assign op_j    = (opcode == 7'b1101111);
+    assign rv_jal  = (opcode == 7'b1101111);
     
     assign op_memi  = (opcode == 7'b0000011);
     assign rv_ld  = op_memi && func3_011;
@@ -164,8 +175,7 @@ module idu(
     
     
     //j_type instruction
-    assign op_j    = (opcode == 7'b1100111);
-    assign rv_jalr = op_j && func3_000;
+    assign rv_jalr = (opcode == 7'b1100111) && func3_000;
     
     //b_type instruction
     assign op_b  = (opcode == 7'b1100011);
@@ -189,6 +199,7 @@ module idu(
            	     op_s );
     
     assign rs2_en = (op_r |
+                   op_s |
            	     op_b );
     
     assign imm_en = (op_u |
@@ -196,6 +207,12 @@ module idu(
     		     op_b |
     		     op_i |
     		     op_s );
+    
+    assign alu_sr1_rs1_en = rs1_en & ~alu_sr1_pc_en;
+    assign alu_sr1_pc_en = pc_src_en[1] | pc_src_en[2] | pc_src_en[3];
+    assign alu_sr2_rs2_en =  op_b | op_r;
+    assign alu_sr2_imm_en = imm_en & ~alu_sr2_pc_en;
+    assign alu_sr2_pc_en = pc_src_en[1] | pc_src_en[2];
 
     assign imm = ({64{op_u}} & immU)
                | ({64{op_j}} & immJ)
@@ -205,7 +222,7 @@ module idu(
                | ({64{op_s}} & immS);
 
     assign alu_ctrl[0]  = rv_addi | rv_add | (rv_jalr | rv_jal) |
-			 (rv_lb | rv_lh | rv_lw | rv_lbu | rv_lhu | rv_lwu | rv_sb | rv_sh | rv_sw);
+			 (op_s | op_memi) | rv_auipc;
     assign alu_ctrl[1]  = rv_sub;
     assign alu_ctrl[2]  = rv_slti | rv_slt;
     assign alu_ctrl[3]  = rv_sltiu | rv_sltu;
@@ -240,8 +257,8 @@ module idu(
 
  
     //write back to regfile control
-    assign mem2reg_en = op_s;
-    assign alu2reg_en = ~(op_s | op_b);
-    assign wr_reg_en  = ~op_b;
+    assign mem2reg_en = op_memi;
+    assign alu2reg_en = ~(op_s | op_memi | op_b);
+    assign wr_reg_en  = ~(op_b | op_s);
 endmodule
 

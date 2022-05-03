@@ -72,7 +72,7 @@ module alu (
     
     assign add_src1 = (op_bgeu | op_bge) ? ~alu_sr1: alu_sr1; 
     assign add_src2 = (op_sub | op_slt | op_sltu | op_beq | op_bne | op_blt | op_bltu) ? ~alu_sr2 : alu_sr2;
-    assign add_src2 = (op_sub | op_slt | op_sltu) ? ~alu_sr2 : alu_sr2;
+    //assign add_src2 = (op_sub | op_slt | op_sltu) ? ~alu_sr2 : alu_sr2;
     assign {add_cout, add_res} = add_src1 + add_src2 + {63'b0, add_cin};
     assign add_cin = (add_src2 == ~alu_sr2) ? 1:0;
     assign add_sub_res = add_res;

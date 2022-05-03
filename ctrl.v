@@ -1,12 +1,15 @@
 module ctrl (
     //idu to ctrl
+    input         rst,
     input[3:0]    pc_src_en,
-    input         rs1_en,
-    input         rs2_en,
+    input         alu_sr1_rs1_en,
+    input         alu_sr1_pc_en,
+    input         alu_sr2_rs2_en,
     input         alu2reg_en,
+    input         alu_sr2_pc_en,
     input         mem2reg_en,
     input[63:0]   imm,
-    input         imm_en,
+    input         alu_sr2_imm_en,
     input[6:0]    rd_mem_op,
     //regfile to ctrl
     input[63:0]   rs1_reg2ctrl,
@@ -35,20 +38,18 @@ module ctrl (
     `define LWU 7'b0010000
     `define LHU 7'b0100000
     `define LBU 7'b1000000
-    assign pc_sel[0] = ~(|pc_src_en) | ((|pc_src_en) & ~alu_res[0]);
+    assign pc_sel[0] = (rst==1)? 0: (pc_src_en[0] & alu_res[0]);
 
-    assign pc_sel[1] = pc_src_en[0] & ~(pc_src_en[1] & pc_src_en[2]) & alu_res[0]
-		     | pc_src_en[1] & ~(pc_src_en[0] & pc_src_en[2]);
-    
-    assign pc_sel[2] = pc_src_en[2] & ~(pc_src_en[0] & pc_src_en[1]);
+    assign pc_sel[1] =(rst==1)? 0: pc_src_en[1];
+    assign pc_sel[2] =(rst==1)? 0: pc_src_en[2];
     
     //alu_ctrl
-    assign alu_src1 = ({64{rs1_en}} & rs1_reg2ctrl)
-		   | ({64{pc_src_en[2] | pc_src_en[2] | pc_src_en[3]}} & pc);
+    assign alu_src1 = ({64{alu_sr1_rs1_en}} & rs1_reg2ctrl)
+		   | ({64{alu_sr1_pc_en}} & pc);
 
-    assign alu_src2 = ({64{rs2_en}} & rs2_reg2ctrl)
-		   | ({64{imm_en}} & imm)
-		   | ({64{pc_src_en[0] | pc_src_en[1]}} & 'h4);
+    assign alu_src2 = ({64{alu_sr2_rs2_en}} & rs2_reg2ctrl)
+		   | ({64{alu_sr2_imm_en}} & imm)
+		   | ({64{alu_sr2_pc_en}} & 'h4);
     //write back control
     assign wr_reg_data = ({64{rd_mem_op == `LD & mem2reg_en}} & mem_rd_data)
 		       | ({64{rd_mem_op == `LW & mem2reg_en}} & {{32{mem_rd_data[31]}}, mem_rd_data[31:0]})
