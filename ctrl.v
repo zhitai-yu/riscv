@@ -11,6 +11,7 @@ module ctrl (
     input[63:0]   imm,
     input         alu_sr2_imm_en,
     input[6:0]    rd_mem_op,
+    input	  alu_sext_before_wr_reg,
     //regfile to ctrl
     input[63:0]   rs1_reg2ctrl,
     input[63:0]   rs2_reg2ctrl,
@@ -58,7 +59,8 @@ module ctrl (
 		       | ({64{rd_mem_op == `LWU & mem2reg_en}} & {32'b0, mem_rd_data[31:0]})
 		       | ({64{rd_mem_op == `LHU & mem2reg_en}} & {48'b0, mem_rd_data[15:0]})
 		       | ({64{rd_mem_op == `LBU & mem2reg_en}} & {56'b0,  mem_rd_data[7:0]})
-		       | ({64{alu2reg_en}} & alu_res);
+		       | ({64{alu2reg_en & ~alu_sext_before_wr_reg}} & alu_res)
+		       | ({64{alu2reg_en & alu_sext_before_wr_reg}} & {{32{alu_res[31]}},alu_res[31:0]});
 
     assign rd_mem_addr = { {32{alu_res[31]}}, alu_res[31:0]};
 endmodule

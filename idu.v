@@ -10,13 +10,13 @@ module idu(
     output alu2reg_en,
     output mem2reg_en,
     output [63:0] imm,
-    output imm_en,    
     output [6:0] rd_mem_op,    
     output alu_sr1_rs1_en,
     output alu_sr1_pc_en,
     output alu_sr2_rs2_en,
     output alu_sr2_imm_en,
     output alu_sr2_pc_en,
+    output alu_sext_before_wr_reg,
     //idu to regfile
     output [4:0] rs1,    
     output [4:0] rs2,    
@@ -103,6 +103,7 @@ module idu(
     wire rv_lwu  ;
     wire rv_lhu  ;
     wire rv_lbu  ;
+    wire imm_en;
     
     assign ebreak = (rst==1)?0:(instr[31:0] == 32'h0100073);
 
@@ -134,7 +135,7 @@ module idu(
     assign rv_auipc = (opcode == 7'b0010111);
     
     //i_type instruction
-    assign op_i = (op_cali || op_memi || opcode==7'b1100111);
+    assign op_i = (op_cali || op_memi || opcode==7'b1100111 || op_iw);
     
     assign op_cali  = (opcode == 7'b0010011);
     assign rv_addi  = op_cali && func3_000;
@@ -192,7 +193,45 @@ module idu(
     assign rv_sh  = op_s && func3_001;
     assign rv_sw  = op_s && func3_010;
     assign rv_sd  = op_s && func3_011;
-    
+
+    wire op_rw;
+    wire rv_addw;
+    wire rv_subw;
+    wire rv_sllw;
+    wire rv_srlw;
+    wire rv_sraw;
+    wire rv_mulw;
+    wire rv_diuw;
+    wire rv_divuw;
+    wire rv_remw;
+    wire rv_remuw;
+    //I type RVM
+    wire op_iw;
+    wire rv_addiw;
+    wire rv_slliw;
+    wire rv_srliw;    
+    wire rv_sraiw;      
+    //R type RVM 
+    assign op_rw = (opcode == 7'b0111011);
+    assign rv_addw  = op_rw && func3_000 && (func7 ==7'b0000000);
+    assign rv_subw  = op_rw && func3_000 && (func7 ==7'b0100000);
+    assign rv_sllw  = op_rw && func3_001 && (func7 ==7'b0000000);
+    assign rv_srlw  = op_rw && func3_101 && (func7 ==7'b0000000);
+    assign rv_sraw  = op_rw && func3_101 && (func7 ==7'b0100000);
+    assign rv_mulw  = op_rw && func3_000 && (func7 ==7'b0000001);
+    assign rv_diuw  = op_rw && func3_100 && (func7 ==7'b0000001);
+    assign rv_divuw = op_rw && func3_101 && (func7 ==7'b0000001);
+    assign rv_remw  = op_rw && func3_110 && (func7 ==7'b0000001);
+    assign rv_remuw = op_rw && func3_111 && (func7 ==7'b0000001);
+    //I type RVM
+    assign op_iw = (opcode == 7'b0011011);
+    assign rv_addiw  = op_iw && func3_000;
+    assign rv_slliw  = op_iw && func3_001 && (func7 ==7'b0000000);
+    assign rv_srliw  = op_iw && func3_101 && (func7 ==7'b0000000);    
+    assign rv_sraiw  = op_iw && func3_101 && (func7 ==7'b0100000);    
+
+    assign alu_sext_before_wr_reg = op_rw | op_iw;
+
     assign rs1_en = (op_b |
            	     op_r |
            	     op_i |
@@ -222,8 +261,8 @@ module idu(
                | ({64{op_s}} & immS);
 
     assign alu_ctrl[0]  = rv_addi | rv_add | (rv_jalr | rv_jal) |
-			 (op_s | op_memi) | rv_auipc;
-    assign alu_ctrl[1]  = rv_sub;
+			 (op_s | op_memi) | rv_auipc | rv_addw | rv_addiw;
+    assign alu_ctrl[1]  = rv_sub | rv_subw;
     assign alu_ctrl[2]  = rv_slti | rv_slt;
     assign alu_ctrl[3]  = rv_sltiu | rv_sltu;
     assign alu_ctrl[4]  = rv_and | rv_andi;
