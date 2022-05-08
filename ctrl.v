@@ -1,7 +1,7 @@
 module ctrl (
     //idu to ctrl
     input         rst,
-    input[3:0]    pc_src_en,
+    input[2:0]    pc_src_en,
     input         alu_sr1_rs1_en,
     input         alu_sr1_pc_en,
     input         alu_sr2_rs2_en,
@@ -62,5 +62,5 @@ module ctrl (
 		       | ({64{alu2reg_en & ~alu_sext_before_wr_reg}} & alu_res)
 		       | ({64{alu2reg_en & alu_sext_before_wr_reg}} & {{32{alu_res[31]}},alu_res[31:0]});
 
-    assign rd_mem_addr = { {32{alu_res[31]}}, alu_res[31:0]};
+    assign rd_mem_addr = alu_res;
 endmodule

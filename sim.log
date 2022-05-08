@@ -1,0 +1,68 @@
+/home/ubuntu/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
+/home/ubuntu/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
+nemu reg[8]: 800001bc not match with dut reg[8]: 0 at pc:80000014 at dut time 71000
+fail
+nemu reg[8]: 800001bc not match with dut reg[8]: 0 at pc:8000007c at dut time 73000
+fail
+nemu reg[8]: 800001bc not match with dut reg[8]: 0 at pc:80000080 at dut time 75000
+fail
+nemu reg[1]: 8000007c not match with dut reg[1]: 0 at pc:80000060 at dut time 77000
+fail
+nemu reg[1]: 8000007c not match with dut reg[1]: 0 at pc:80000064 at dut time 79000
+fail
+nemu reg[1]: 8000007c not match with dut reg[1]: 0 at pc:80000068 at dut time 81000
+fail
+nemu reg[1]: 8000007c not match with dut reg[1]: 0 at pc:8000006c at dut time 83000
+fail
+nemu reg[1]: 8000007c not match with dut reg[1]: 0 at pc:80000070 at dut time 85000
+fail
+nemu reg[1]: 8000007c not match with dut reg[1]: 0 at pc:80000074 at dut time 87000
+fail
+nemu reg[1]: 8000007c not match with dut reg[1]: 0 at pc:80000078 at dut time 89000
+fail
+nemu reg[8]: 800001c0 not match with dut reg[8]: 4 at pc:80000010 at dut time 91000
+fail
+nemu reg[8]: 800001c0 not match with dut reg[8]: 0 at pc:80000014 at dut time 93000
+fail
+nemu reg[2]: 80008fc0 not match with dut reg[2]: 80008fb0 at pc:8000007c at dut time 95000
+fail
+nemu reg[2]: 80008fc0 not match with dut reg[2]: 80008fb0 at pc:80000080 at dut time 97000
+fail
+nemu reg[2]: 80008fc0 not match with dut reg[2]: 80008fb0 at pc:80000060 at dut time 99000
+fail
+nemu reg[1]: 8000007c not match with dut reg[1]: 80000028 at pc:80000064 at dut time 101000
+fail
+nemu reg[1]: 8000007c not match with dut reg[1]: 80000028 at pc:80000068 at dut time 103000
+fail
+gpr[0] = 0x0
+gpr[1] = 0x80000028
+gpr[2] = 0x80008fb0
+gpr[3] = 0x0
+gpr[4] = 0x0
+gpr[5] = 0x0
+gpr[6] = 0x0
+gpr[7] = 0x0
+gpr[8] = 0x0
+gpr[9] = 0x800001b8
+gpr[10] = 0x1
+gpr[11] = 0x0
+gpr[12] = 0x0
+gpr[13] = 0x0
+gpr[14] = 0x0
+gpr[15] = 0x130eca8
+gpr[16] = 0x0
+gpr[17] = 0x0
+gpr[18] = 0x8000017c
+gpr[19] = 0x800001d8
+gpr[20] = 0x0
+gpr[21] = 0x0
+gpr[22] = 0x0
+gpr[23] = 0x0
+gpr[24] = 0x0
+gpr[25] = 0x0
+gpr[26] = 0x0
+gpr[27] = 0x0
+gpr[28] = 0x0
+gpr[29] = 0x0
+gpr[30] = 0x0
+gpr[31] = 0x0

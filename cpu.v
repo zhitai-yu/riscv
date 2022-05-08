@@ -19,9 +19,9 @@ module cpu (
     wire [63:0] pc;
     wire [63:0] pc_reg;
     wire [2:0] pc_sel;
-    wire [3:0] pc_src_en;
+    wire [2:0] pc_src_en;
     wire wr_reg_en;
-    wire [3:0] wr_rd_mem_len;
+    wire [7:0] wr_rd_mem_len;
     wire [16:0] alu_ctrl;
     wire [63:0] mem_rd_data;
     wire rd_mem_en;
@@ -32,8 +32,8 @@ module cpu (
     wire [63:0] alu_res;
     wire [63:0] wr_reg_data;
     wire [63:0] rd_mem_addr;
-    wire [10:0] rd_addr2mem;
-    wire [10:0] wr_addr2mem;
+    wire [63:0] rd_addr2mem;
+    wire [63:0] wr_addr2mem;
     wire [63:0] wr_addr2instrmem;
     wire ebreak;
     wire alu_sext_before_wr_reg;
@@ -44,8 +44,8 @@ module cpu (
     wire alu_sr2_imm_en;
     wire alu_sr2_pc_en;
     assign cpuebreak = ebreak;
-    assign rd_addr2mem = rd_mem_addr[10:0];
-    assign wr_addr2mem = alu_res[10:0];
+    assign rd_addr2mem = rd_mem_addr;
+    assign wr_addr2mem = alu_res;
     assign wr_addr2instrmem = pc;
     assign cpupc = pc;
     ctrl rv64_ctrl (
@@ -107,7 +107,7 @@ module cpu (
 	//from instr_mem
         .instr (instr),
 	//to ctrl
-        .pc_src_en (pc_src_en),
+        .pc_src_en_o (pc_src_en),
         .rs1_en (rs1_en),    
         .rs2_en (rs2_en),    
         .alu2reg_en (alu2reg_en),

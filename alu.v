@@ -74,21 +74,32 @@ module alu (
     assign add_src2 = (op_sub | op_slt | op_sltu | op_beq | op_bne | op_blt | op_bltu) ? ~alu_sr2 : alu_sr2;
     //assign add_src2 = (op_sub | op_slt | op_sltu) ? ~alu_sr2 : alu_sr2;
     assign {add_cout, add_res} = add_src1 + add_src2 + {63'b0, add_cin};
-    assign add_cin = (add_src2 == ~alu_sr2) ? 1:0;
+    
+    //unsigned num cal
+    wire sign;
+    wire [63:0] add_res_u;
+    wire add_cout_u;
+    assign sign = (op_sub | op_slt | op_sltu | op_beq | op_bne | op_blt | op_bltu) ? 1:0;
+    assign {add_cout_u, add_res_u} = {1'b0,add_src1} + {sign,add_src2} + {64'b0, add_cin};
+
+    assign add_cin = (op_sub | op_slt | op_sltu | op_beq | op_bne | op_blt | op_bltu) ? 1:0;
+    //assign add_cin = (add_src2 == ~alu_sr2) ? 1:0;
     assign add_sub_res = add_res;
 
     assign slt_blt_bge_res[0] = (alu_sr1[63] & alu_sr2[63])
 		      | (~(alu_sr1[63] & alu_sr2[63]) & add_res[63]);
     assign slt_blt_bge_res[63:1] = 63'b0;
 
-    assign sltu_bltu_bgeu_res[0] = ~add_cout;
+    assign sltu_bltu_bgeu_res[0] = add_cout_u;
     assign sltu_bltu_bgeu_res[63:1] = 63'b0;
     
-    assign beq_res = {63'b0,({add_cout, add_res}==0)};
-    assign bne_res = {63'b0,({add_cout, add_res}!=0)};
+    assign beq_res = {63'b0,(add_res==0)};
+    assign bne_res = {63'b0,(add_res!=0)};
+    //assign beq_res = {63'b0,({add_cout, add_res}==0)};
+    //assign bne_res = {63'b0,({add_cout, add_res}!=0)};
 
-    assign alu_res = ({64{op_add | op_sub}} & add_sub_res)
-                   | ({64{op_slt | op_blt | op_bge}}  & slt_blt_bge_res )
+    assign alu_res = ({64{op_add  | op_sub}} & add_sub_res)
+                   | ({64{op_slt  | op_blt | op_bge}}  & slt_blt_bge_res )
                    | ({64{op_sltu | op_bltu | op_bgeu}}  & sltu_bltu_bgeu_res)
                    | ({64{op_and }}  & and_res )
                    | ({64{op_xor }}  & xor_res )
