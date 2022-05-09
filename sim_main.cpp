@@ -16,7 +16,7 @@ uint8_t *pmem = NULL;
 uint64_t cpu_pc;
 long img_size;
 //static char *img_file = "/home/ubuntu/ysyx-workbench/am-kernels/tests/cpu-tests/build/div-riscv64-nemu.bin";
-static char *img_file = "/home/ubuntu/Desktop/riscv_test/riscv/unalign-riscv64-nemu.bin";
+static char *img_file = "/home/ubuntu/Desktop/riscv_test/riscv/bin/unalign-riscv64-nemu.bin";
 extern void init_difftest(char *ref_so_file, long img_size);
 extern void difftest_step(uint64_t pc);
 extern "C" void set_gpr_ptr(const svOpenArrayHandle r) {
