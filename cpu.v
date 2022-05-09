@@ -1,3 +1,6 @@
+`ifndef ALU_OPNUM
+    `define ALU_OPNUM 22
+`endif
 module cpu (
     input clk,
     input rst,
@@ -22,7 +25,7 @@ module cpu (
     wire [2:0] pc_src_en;
     wire wr_reg_en;
     wire [7:0] wr_rd_mem_len;
-    wire [16:0] alu_ctrl;
+    wire [`ALU_OPNUM-1:0] alu_ctrl;
     wire [63:0] mem_rd_data;
     wire rd_mem_en;
     wire wr_mem_en;
@@ -37,6 +40,10 @@ module cpu (
     wire [63:0] wr_addr2instrmem;
     wire ebreak;
     wire alu_sext_before_wr_reg;
+    wire alu_src1_bit32;
+    wire alu_src2_bit32;
+    wire alu_src2_bit5;
+    wire alu_src1_sext;
 
     wire alu_sr1_rs1_en;
     wire alu_sr1_pc_en;
@@ -62,6 +69,10 @@ module cpu (
         .imm (imm),
         .rd_mem_op (rd_mem_op),	
         .alu_sext_before_wr_reg(alu_sext_before_wr_reg),
+        .alu_src1_bit32(alu_src1_bit32),
+        .alu_src2_bit32(alu_src2_bit32),
+        .alu_src2_bit5(alu_src2_bit5),
+        .alu_src1_sext(alu_src1_sext),
 	//from regfile
         .rs1_reg2ctrl (rs1_data),
         .rs2_reg2ctrl (rs2_data),
@@ -120,6 +131,10 @@ module cpu (
         .alu_sr2_imm_en(alu_sr2_imm_en),
         .alu_sr2_pc_en(alu_sr2_pc_en),
         .alu_sext_before_wr_reg(alu_sext_before_wr_reg),
+        .alu_src1_bit32(alu_src1_bit32),
+        .alu_src2_bit32(alu_src2_bit32),
+        .alu_src2_bit5(alu_src2_bit5),
+        .alu_src1_sext(alu_src1_sext),
 	//to regfile
         .rs1 (rs1_addr),    
         .rs2 (rs2_addr),    

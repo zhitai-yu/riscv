@@ -16,21 +16,19 @@ module data_mem (
       input longint waddr, input longint wdata, input byte wmask);
 
     wire [63:0] rdata;
+    reg  [63:0] rdata_t;
     reg [63:0] wdata;
     reg [63:0] waddr;
     reg [7:0] wlen;
 
     always @(*) begin
-	if(rd_en & ~rst)
-	    pmem_read(rd_addr, rd_data);
-	else
-	    rd_data = 0;
+	pmem_read(rd_addr, rdata);
     end
     
-    //always @(*) begin
-    //    if(rd_en & ~rst)
-    //        rd_data <= rdata;
-    //end    
+    always @(negedge clk) begin
+        if(rd_en & ~rst)
+            rd_data <= rdata;
+    end    
     
     always @(posedge clk) begin
         if(wr_en & ~rst) begin

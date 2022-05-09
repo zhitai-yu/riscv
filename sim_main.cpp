@@ -8,13 +8,15 @@
 #include "verilated_vcd_c.h"
 #include "verilated_dpi.h"
 #define CONFIG_MSIZE 0x80000000
+#define CONFIG_MLIMIT 0x90000000
 #define CONFIG_MBASE 0x80000000
 uint64_t *cpu_gpr = NULL;
 static uint64_t *gpr = NULL;
 uint8_t *pmem = NULL;
 uint64_t cpu_pc;
 long img_size;
-static char *img_file = "/home/ubuntu/Desktop/riscv/shift-riscv64-nemu.bin";
+//static char *img_file = "/home/ubuntu/ysyx-workbench/am-kernels/tests/cpu-tests/build/div-riscv64-nemu.bin";
+static char *img_file = "/home/ubuntu/ysyx-workbench/am-kernels/tests/cpu-tests/build/unalign-riscv64-nemu.bin";
 extern void init_difftest(char *ref_so_file, long img_size);
 extern void difftest_step(uint64_t pc);
 extern "C" void set_gpr_ptr(const svOpenArrayHandle r) {
@@ -64,10 +66,11 @@ void mem_init() {
 }
 
 extern "C" void pmem_read(long long raddr, long long *rdata) {
-  if(raddr >= CONFIG_MSIZE)
-  *rdata = *((uint64_t *)guest_to_host(raddr));
+  //printf("read memory addr : %x\n",raddr);
+  if(raddr >= CONFIG_MSIZE & raddr <= CONFIG_MLIMIT)
+    *rdata = *((uint64_t *)guest_to_host(raddr));
   else
-  *rdata = 0;
+    *rdata = 0;
 }
 
 extern "C" void pmem_write(long long waddr, long long wdata, long wmask) {

@@ -32,8 +32,6 @@ module regfile (
 	    if (wr_en & wr_addr !=0) begin
 	    	regfile[wr_addr] <= wr_data;
 	    end
-	    else
-	    	regfile[wr_addr] <= 0;
     end
 
 endmodule

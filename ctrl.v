@@ -12,6 +12,10 @@ module ctrl (
     input         alu_sr2_imm_en,
     input[6:0]    rd_mem_op,
     input	  alu_sext_before_wr_reg,
+    input	  alu_src1_bit32,
+    input	  alu_src2_bit32,
+    input	  alu_src2_bit5,
+    input	  alu_src1_sext,
     //regfile to ctrl
     input[63:0]   rs1_reg2ctrl,
     input[63:0]   rs2_reg2ctrl,
@@ -45,12 +49,24 @@ module ctrl (
     assign pc_sel[2] =(rst==1)? 0: pc_src_en[2];
     
     //alu_ctrl
-    assign alu_src1 = ({64{alu_sr1_rs1_en}} & rs1_reg2ctrl)
-		   | ({64{alu_sr1_pc_en}} & pc);
+    wire [63:0] alu_src1_o;
+    wire [63:0] alu_src2_o;
 
-    assign alu_src2 = ({64{alu_sr2_rs2_en}} & rs2_reg2ctrl)
-		   | ({64{alu_sr2_imm_en}} & imm)
-		   | ({64{alu_sr2_pc_en}} & 'h4);
+    assign alu_src1_o = ({64{alu_sr1_rs1_en}} & rs1_reg2ctrl)
+		      | ({64{alu_sr1_pc_en}} & pc);
+
+    assign alu_src2_o = ({64{alu_sr2_rs2_en}} & rs2_reg2ctrl)
+		      | ({64{alu_sr2_imm_en}} & imm)
+		      | ({64{alu_sr2_pc_en}} & 'h4);
+    
+    //assign alu_src1 = (~alu_src1_bit32) ? alu_src1_o : {{32{1'b0}}, alu_src1_o[31:0]};
+    assign alu_src1 = (~alu_src1_bit32) ? alu_src1_o : ((~alu_src1_sext) ? {32'b0, alu_src1_o[31:0]} : {{32{alu_src1_o[31]}}, alu_src1_o[31:0]});
+    //assign alu_src1 = (~alu_src1_bit32) ? alu_src1_o : ((alu_src1_sext) ? {32'b0, alu_src1_o[31:0]} : {{32{alu_src1_o[31]}}, alu_src1_o[31:0]});
+
+    assign alu_src2 = ({64{~alu_src2_bit32}} & alu_src2_o)
+		    | ({64{alu_src2_bit32}} & {{32{1'b0}}, alu_src2_o[31:0]})
+		    | ({64{alu_src2_bit5}} & {{59{1'b0}}, alu_src2_o[4:0]});
+
     //write back control
     assign wr_reg_data = ({64{rd_mem_op == `LD & mem2reg_en}} & mem_rd_data)
 		       | ({64{rd_mem_op == `LW & mem2reg_en}} & {{32{mem_rd_data[31]}}, mem_rd_data[31:0]})
